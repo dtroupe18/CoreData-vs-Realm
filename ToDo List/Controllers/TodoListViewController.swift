@@ -13,17 +13,12 @@ class TodoListViewController: UITableViewController {
     @IBOutlet weak var addBarButton: UIBarButtonItem!
     
     var itemArray = [Item]()
+    
+    let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let item1 = Item(title: "Find Mike")
-        let item2 = Item(title: "Go home")
-        let item3 = Item(title: "Take out trash", done: true)
-        
-        itemArray.append(item1)
-        itemArray.append(item2)
-        itemArray.append(item3)
+        loadItems()
     }
     
     // Marker: Tableview Delegate
@@ -46,6 +41,7 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
+        self.saveItems()
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
 
@@ -57,6 +53,7 @@ class TodoListViewController: UITableViewController {
                 if textField.text != "" && textField.text != nil {
                     self.itemArray.append(Item(title: textField.text!))
                     self.tableView.reloadData()
+                    self.saveItems()
                 }
             }
         }
@@ -67,9 +64,35 @@ class TodoListViewController: UITableViewController {
         
         alert.addAction(action)
         alert.addAction(cancel)
-        
         self.present(alert, animated: true)
         
+    }
+    
+    // Marker: Save and load data to documents directory using Codable
+    //
+    
+    // Warning: Much like storing information in NSUserDefaults storing everything in one plist means that
+    // all of the data must be loaded at once which does not scale well.
+    
+    private func saveItems() {
+        let encoder = PropertyListEncoder()
+        do {
+            let data = try encoder.encode(itemArray)
+            try? data.write(to: filePath!)
+        } catch {
+            print("Error encoding data: \(error)")
+        }
+    }
+    
+    private func loadItems() {
+        if let data = try? Data(contentsOf: filePath!) {
+            let decoder = PropertyListDecoder()
+            do {
+                itemArray = try decoder.decode([Item].self, from: data)
+            } catch {
+                print("Error decoding data: \(error)")
+            }
+        }
     }
     
     override func didReceiveMemoryWarning() {
