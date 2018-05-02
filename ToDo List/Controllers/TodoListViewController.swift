@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import CoreData
 
 class TodoListViewController: UITableViewController {
     
@@ -14,8 +15,8 @@ class TodoListViewController: UITableViewController {
     
     var itemArray = [Item]()
     
-    let filePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
-
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         loadItems()
@@ -46,12 +47,16 @@ class TodoListViewController: UITableViewController {
     }
 
     @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
-        let alert = UIAlertController(title: "Add New Todo", message: "", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
         let action = UIAlertAction(title: "Add Item", style: .default) { (_) in
             if let textField = alert.textFields?[0] {
                 if textField.text != "" && textField.text != nil {
-                    self.itemArray.append(Item(title: textField.text!))
+                    let newItem = Item(context: self.context)
+                    newItem.title = textField.text!
+                    newItem.done = false
+                    
+                    self.itemArray.append(newItem)
                     self.tableView.reloadData()
                     self.saveItems()
                 }
@@ -65,38 +70,85 @@ class TodoListViewController: UITableViewController {
         alert.addAction(action)
         alert.addAction(cancel)
         self.present(alert, animated: true)
-        
     }
     
-    // Marker: Save and load data to documents directory using Codable
+    // Marker: Save and load from core data
     //
-    
-    // Warning: Much like storing information in NSUserDefaults storing everything in one plist means that
-    // all of the data must be loaded at once which does not scale well.
-    
     private func saveItems() {
-        let encoder = PropertyListEncoder()
         do {
-            let data = try encoder.encode(itemArray)
-            try? data.write(to: filePath!)
+            try context.save()
         } catch {
-            print("Error encoding data: \(error)")
+            print("Error saving context: \(error)")
         }
     }
     
-    private func loadItems() {
-        if let data = try? Data(contentsOf: filePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error decoding data: \(error)")
-            }
+    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest()) {
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context: \(error)")
         }
+        tableView.reloadData()
     }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
 }
+
+// Marker: SearchBar Delegate
+//
+extension TodoListViewController: UISearchBarDelegate {
+    
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        let request: NSFetchRequest<Item> = Item.fetchRequest()
+        // [cd] makes the search case and diacritic insensitive http://nshipster.com/nspredicate/
+        //
+        request.predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        loadItems(with: request)
+    }
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            // User just cleared the search bar reload everything so their previous search is gone
+            //
+            loadItems()
+            searchBar.resignFirstResponder()
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

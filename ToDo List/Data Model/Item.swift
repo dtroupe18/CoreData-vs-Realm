@@ -6,6 +6,9 @@
 //  Copyright © 2018 High Tree Development. All rights reserved.
 //
 
+// This file is completely commented out because it is no longer needed now that we are using core data!
+
+/*
 import Foundation
 
 struct Item: Codable {
@@ -23,3 +26,4 @@ struct Item: Codable {
         self.done = done
     }
 }
+ */
