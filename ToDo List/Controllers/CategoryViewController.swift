@@ -44,6 +44,24 @@ class CategoryViewController: UITableViewController {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
     
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            if categories != nil {
+                print("deleting data")
+                do {
+                    try! realm.write {
+                        realm.delete(categories![indexPath.row])
+                    }
+                }
+                tableView.reloadData(with: .fade)
+            }
+        }
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationVC = segue.destination as? TodoListViewController {
             if let indexPath = tableView.indexPathForSelectedRow {
@@ -66,7 +84,9 @@ class CategoryViewController: UITableViewController {
     }
     
     private func loadCategories() {
-        categories = realm.objects(Category.self) // retrieves all Categories from the default Realm
+        // retrieve all Categories from the default Realm and sort by their name
+        //
+        categories = realm.objects(Category.self).sorted(byKeyPath: "name", ascending: true)
         tableView.reloadData()
     }
     
@@ -101,4 +121,10 @@ class CategoryViewController: UITableViewController {
         super.didReceiveMemoryWarning()
     }
 
+}
+
+extension UITableView {
+    func reloadData(with animation: UITableViewRowAnimation) {
+        reloadSections(IndexSet(integersIn: 0..<numberOfSections), with: animation)
+    }
 }

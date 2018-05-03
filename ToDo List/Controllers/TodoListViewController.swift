@@ -69,6 +69,24 @@ class TodoListViewController: UITableViewController {
         }
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            if todoItems != nil {
+                print("deleting Item")
+                do {
+                    try! realm.write {
+                        realm.delete(todoItems![indexPath.row])
+                    }
+                }
+                tableView.reloadData(with: .fade)
+            }
+        }
+    }
 
     @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Add New Item", message: "", preferredStyle: .alert)
@@ -81,8 +99,7 @@ class TodoListViewController: UITableViewController {
                     //
                     do {
                         try self.realm.write {
-                            let newItem = Item()
-                            newItem.title = textField.text!
+                            let newItem = Item(title: textField.text!)
                             // Add this item to its parent. This must be done in a write block
                             //
                             parentCategory.items.append(newItem)
@@ -125,7 +142,8 @@ extension TodoListViewController: UISearchBarDelegate {
         // [cd] makes the search case and diacritic insensitive http://nshipster.com/nspredicate/
         //
         if searchBar.text != nil {
-            todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+            todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "dateCreated", ascending: false)
+            tableView.reloadData()
         }
     }
 
