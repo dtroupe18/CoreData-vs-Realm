@@ -42,6 +42,33 @@ class CategoryViewController: UITableViewController {
         performSegue(withIdentifier: "goToItems", sender: self)
     }
     
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            // To delete from core data we need to fetch the object we are looking for
+            //
+            if let category = categories[indexPath.row].name {
+                let request: NSFetchRequest<Category> = Category.fetchRequest()
+                request.predicate = NSPredicate(format: "name MATCHES %@", category)
+                // request.predicate = NSPredicate(format: "name==\(category)")
+                
+                if let results = try? context.fetch(request) {
+                    for object in results {
+                        context.delete(object)
+                    }
+                    // Save the context so our changes persist and We also have to delete the local copy of the data
+                    //
+                    categories.remove(at: indexPath.row)
+                    saveCategories()
+                    tableView.reloadData()
+                }
+            }
+        }
+    }
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if let destinationVC = segue.destination as? TodoListViewController {
             if let indexPath = tableView.indexPathForSelectedRow {

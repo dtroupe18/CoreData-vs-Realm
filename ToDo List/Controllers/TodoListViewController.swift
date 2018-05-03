@@ -13,6 +13,7 @@ class TodoListViewController: UITableViewController {
     
     @IBOutlet weak var addBarButton: UIBarButtonItem!
     let context: NSManagedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
     var itemArray: [Item] = [Item]()
     
     var selectedCategory: Category? {
@@ -47,6 +48,34 @@ class TodoListViewController: UITableViewController {
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         self.saveItems()
         tableView.reloadRows(at: [indexPath], with: .fade)
+    }
+    
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+    
+    override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
+        if (editingStyle == UITableViewCellEditingStyle.delete) {
+            // To delete from core data we need to fetch the object we are looking for
+            //
+            if let categoryName = selectedCategory?.name, let itemName = itemArray[indexPath.row].title {
+                let request: NSFetchRequest<Item> = Item.fetchRequest()
+                let categoryPredicate: NSPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", categoryName)
+                let itemPredicate: NSPredicate = NSPredicate(format: "title MATCHES %@", itemName)
+                request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, itemPredicate])
+                
+                if let results = try? context.fetch(request) {
+                    for object in results {
+                        context.delete(object)
+                    }
+                    // Save the context and delete the data locally
+                    //
+                    itemArray.remove(at: indexPath.row)
+                    saveItems()
+                    tableView.reloadData()
+                }
+            }
+        }
     }
 
     @IBAction func addItemPressed(_ sender: UIBarButtonItem) {
