@@ -38,6 +38,18 @@ class CategoryViewController: UITableViewController {
         return cell
     }
     
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        performSegue(withIdentifier: "goToItems", sender: self)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if let destinationVC = segue.destination as? TodoListViewController {
+            if let indexPath = tableView.indexPathForSelectedRow {
+                destinationVC.selectedCategory = categories[indexPath.row]
+            }
+        }
+    }
+    
     // Marker: CoreData save and load
     //
     private func saveCategories() {
