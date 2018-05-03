@@ -2,28 +2,22 @@
 //  Item.swift
 //  ToDo List
 //
-//  Created by Dave on 5/2/18.
+//  Created by Dave on 5/3/18.
 //  Copyright © 2018 High Tree Development. All rights reserved.
 //
 
-// This file is completely commented out because it is no longer needed now that we are using core data!
-
-/*
 import Foundation
+import RealmSwift
 
-struct Item: Codable {
+class Item: Object {
+    @objc dynamic var title: String = ""
+    @objc dynamic var done: Bool = false
     
-    var title: String
-    var done: Bool
+    // Define the parent relationship -> Each item has one category
+    var parentCategory = LinkingObjects(fromType: Category.self, property: "items")
     
-    init(title: String) {
+    convenience init(title: String) {
+        self.init()
         self.title = title
-        self.done = false
-    }
-    
-    init(title: String, done: Bool) {
-        self.title = title
-        self.done = done
     }
 }
- */

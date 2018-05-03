@@ -7,13 +7,15 @@
 //
 
 import UIKit
-import CoreData
+import RealmSwift
+
 
 class TodoListViewController: UITableViewController {
     
     @IBOutlet weak var addBarButton: UIBarButtonItem!
-    let context: NSManagedObjectContext = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-    var itemArray: [Item] = [Item]()
+    
+    let realm = try! Realm()
+    var todoItems: Results<Item>?
     
     var selectedCategory: Category? {
         didSet {
@@ -32,20 +34,39 @@ class TodoListViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return itemArray.count
+        return todoItems?.count ?? 1
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TodoItemCell", for: indexPath)
-        cell.textLabel?.text = itemArray[indexPath.row].title
-        cell.accessoryType = itemArray[indexPath.row].done ? .checkmark : .none
+        if let item = todoItems?[indexPath.row] {
+            cell.textLabel?.text = item.title
+            if item.done {
+                cell.accessoryType = .checkmark
+            } else {
+                cell.accessoryType = .none
+            }
+        } else {
+            cell.textLabel?.text = "No Items Added Yet"
+            cell.accessoryType = .none
+        }
+        
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        itemArray[indexPath.row].done = !itemArray[indexPath.row].done
-        self.saveItems()
+        if let item = todoItems?[indexPath.row] {
+            // Whenever you mutate an object that is persisted you need to be inside a write block
+            //
+            do {
+                try realm.write {
+                    item.done = !item.done
+                }
+            } catch {
+                print("Error updating item done status: \(error)")
+            }
+        }
         tableView.reloadRows(at: [indexPath], with: .fade)
     }
 
@@ -54,15 +75,23 @@ class TodoListViewController: UITableViewController {
         let cancel = UIAlertAction(title: "Cancel", style: .cancel) { (_) in }
         let action = UIAlertAction(title: "Add Item", style: .default) { (_) in
             if let textField = alert.textFields?[0] {
-                if textField.text != "" && textField.text != nil {
-                    let newItem = Item(context: self.context)
-                    newItem.title = textField.text!
-                    newItem.done = false
-                    newItem.parentCategory = self.selectedCategory
+                if textField.text != "" && textField.text != nil, let parentCategory = self.selectedCategory {
                     
-                    self.itemArray.append(newItem)
+                    // Save items to Realm
+                    //
+                    do {
+                        try self.realm.write {
+                            let newItem = Item()
+                            newItem.title = textField.text!
+                            // Add this item to its parent. This must be done in a write block
+                            //
+                            parentCategory.items.append(newItem)
+                            self.realm.add(newItem)
+                        }
+                    } catch {
+                        print("Error saving item to Realm: \(error)")
+                    }
                     self.tableView.reloadData()
-                    self.saveItems()
                 }
             }
         }
@@ -76,31 +105,10 @@ class TodoListViewController: UITableViewController {
         self.present(alert, animated: true)
     }
     
-    // Marker: Save and load from core data
+    // Load items from Realm
     //
-    private func saveItems() {
-        do {
-            try context.save()
-        } catch {
-            print("Error saving context: \(error)")
-        }
-    }
-    
-    private func loadItems(with request: NSFetchRequest<Item> = Item.fetchRequest(), predicate: NSPredicate? = nil) {
-        
-        let categoryPredicate = NSPredicate(format: "parentCategory.name MATCHES %@", selectedCategory!.name!)
-        
-        if let additionalPredicate = predicate {
-            request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [categoryPredicate, additionalPredicate])
-        } else {
-            request.predicate = categoryPredicate
-        }
-        
-        do {
-            itemArray = try context.fetch(request)
-        } catch {
-            print("Error fetching data from context: \(error)")
-        }
+    private func loadItems() {
+        todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
         tableView.reloadData()
     }
     
@@ -114,14 +122,13 @@ class TodoListViewController: UITableViewController {
 extension TodoListViewController: UISearchBarDelegate {
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-        let request: NSFetchRequest<Item> = Item.fetchRequest()
         // [cd] makes the search case and diacritic insensitive http://nshipster.com/nspredicate/
         //
-        let searchPredicate: NSPredicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        loadItems(with: request, predicate: searchPredicate)
+        if searchBar.text != nil {
+            todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+        }
     }
-    
+
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         if searchBar.text?.count == 0 {
             // User just cleared the search bar reload everything so their previous search is gone
@@ -131,37 +138,4 @@ extension TodoListViewController: UISearchBarDelegate {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
