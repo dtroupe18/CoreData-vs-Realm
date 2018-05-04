@@ -12,8 +12,8 @@
 		55909781209B56A200DD6CF4 /* Realm.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5590977F209B56A200DD6CF4 /* Realm.framework */; };
 		55909784209B5CBF00DD6CF4 /* Item.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55909783209B5CBF00DD6CF4 /* Item.swift */; };
 		55909786209B5CCA00DD6CF4 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55909785209B5CCA00DD6CF4 /* Category.swift */; };
-		55F7849E209C0F160025ADA0 /* CategoriesScreenShot.png in Resources */ = {isa = PBXBuildFile; fileRef = 55F7849C209C0F160025ADA0 /* CategoriesScreenShot.png */; };
-		55F7849F209C0F160025ADA0 /* ItemsScreenShot.png in Resources */ = {isa = PBXBuildFile; fileRef = 55F7849D209C0F160025ADA0 /* ItemsScreenShot.png */; };
+		55F784A5209C10D80025ADA0 /* CategoriesScreenShot.png in Resources */ = {isa = PBXBuildFile; fileRef = 55F784A3209C10D80025ADA0 /* CategoriesScreenShot.png */; };
+		55F784A6209C10D80025ADA0 /* ItemsScreenShot.png in Resources */ = {isa = PBXBuildFile; fileRef = 55F784A4209C10D80025ADA0 /* ItemsScreenShot.png */; };
 		55FA6DCC209A10B9006D34FE /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FA6DCB209A10B9006D34FE /* AppDelegate.swift */; };
 		55FA6DCE209A10B9006D34FE /* TodoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55FA6DCD209A10B9006D34FE /* TodoListViewController.swift */; };
 		55FA6DD1209A10B9006D34FE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 55FA6DCF209A10B9006D34FE /* Main.storyboard */; };
@@ -27,8 +27,8 @@
 		5590977F209B56A200DD6CF4 /* Realm.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Realm.framework; path = Carthage/Build/iOS/Realm.framework; sourceTree = "<group>"; };
 		55909783209B5CBF00DD6CF4 /* Item.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Item.swift; sourceTree = "<group>"; };
 		55909785209B5CCA00DD6CF4 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
-		55F7849C209C0F160025ADA0 /* CategoriesScreenShot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = CategoriesScreenShot.png; path = ../../../../../Desktop/CategoriesScreenShot.png; sourceTree = "<group>"; };
-		55F7849D209C0F160025ADA0 /* ItemsScreenShot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = ItemsScreenShot.png; path = ../../../../../Desktop/ItemsScreenShot.png; sourceTree = "<group>"; };
+		55F784A3209C10D80025ADA0 /* CategoriesScreenShot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = CategoriesScreenShot.png; sourceTree = "<group>"; };
+		55F784A4209C10D80025ADA0 /* ItemsScreenShot.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ItemsScreenShot.png; sourceTree = "<group>"; };
 		55FA6DC8209A10B9006D34FE /* ToDo List.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ToDo List.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		55FA6DCB209A10B9006D34FE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		55FA6DCD209A10B9006D34FE /* TodoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodoListViewController.swift; sourceTree = "<group>"; };
@@ -58,6 +58,15 @@
 				5590977E209B56A200DD6CF4 /* RealmSwift.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		55F784A0209C105F0025ADA0 /* ScreenShots */ = {
+			isa = PBXGroup;
+			children = (
+				55F784A3209C10D80025ADA0 /* CategoriesScreenShot.png */,
+				55F784A4209C10D80025ADA0 /* ItemsScreenShot.png */,
+			);
+			path = ScreenShots;
 			sourceTree = "<group>";
 		};
 		55FA6DBF209A10B8006D34FE = {
@@ -93,8 +102,7 @@
 		55FA6DDD209A2A80006D34FE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				55F7849C209C0F160025ADA0 /* CategoriesScreenShot.png */,
-				55F7849D209C0F160025ADA0 /* ItemsScreenShot.png */,
+				55F784A0209C105F0025ADA0 /* ScreenShots */,
 				55FA6DD2209A10BC006D34FE /* Assets.xcassets */,
 				55FA6DD4209A10BC006D34FE /* LaunchScreen.storyboard */,
 			);
@@ -189,8 +197,8 @@
 				55FA6DD6209A10BC006D34FE /* LaunchScreen.storyboard in Resources */,
 				55FA6DD3209A10BC006D34FE /* Assets.xcassets in Resources */,
 				55FA6DD1209A10B9006D34FE /* Main.storyboard in Resources */,
-				55F7849F209C0F160025ADA0 /* ItemsScreenShot.png in Resources */,
-				55F7849E209C0F160025ADA0 /* CategoriesScreenShot.png in Resources */,
+				55F784A6209C10D80025ADA0 /* ItemsScreenShot.png in Resources */,
+				55F784A5209C10D80025ADA0 /* CategoriesScreenShot.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
