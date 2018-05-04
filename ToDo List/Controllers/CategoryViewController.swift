@@ -51,11 +51,12 @@ class CategoryViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == UITableViewCellEditingStyle.delete) {
             if categories != nil {
-                print("deleting data")
                 do {
-                    try! realm.write {
+                    try realm.write {
                         realm.delete(categories![indexPath.row])
                     }
+                } catch {
+                    print("Error deleting category from Realm: \(error)")
                 }
                 tableView.reloadData(with: .fade)
             }

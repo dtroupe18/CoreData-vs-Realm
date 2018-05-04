@@ -77,11 +77,12 @@ class TodoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
         if (editingStyle == UITableViewCellEditingStyle.delete) {
             if todoItems != nil {
-                print("deleting Item")
                 do {
-                    try! realm.write {
+                    try realm.write {
                         realm.delete(todoItems![indexPath.row])
                     }
+                } catch {
+                    print("Error deleting item from Realm: \(error)")
                 }
                 tableView.reloadData(with: .fade)
             }
