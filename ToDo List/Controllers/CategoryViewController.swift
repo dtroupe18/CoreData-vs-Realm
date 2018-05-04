@@ -22,6 +22,7 @@ class CategoryViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         loadCategories()
+        self.title = "Categories"
     }
 
     // MARK: - TableView Delegate
