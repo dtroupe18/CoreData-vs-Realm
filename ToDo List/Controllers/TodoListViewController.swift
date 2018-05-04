@@ -20,6 +20,7 @@ class TodoListViewController: UITableViewController {
     var selectedCategory: Category? {
         didSet {
             loadItems()
+            self.title = selectedCategory?.name
         }
     }
     
